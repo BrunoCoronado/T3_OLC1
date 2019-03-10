@@ -1,9 +1,16 @@
 package sistema.ui;
 
+import main.Main;
+import sistema.analizador.Parser;
+import sistema.analizador.Scanner;
+import sistema.bean.Token;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.StringReader;
+import java.util.ArrayList;
 
 public class Ventana extends JFrame {
 
@@ -42,6 +49,39 @@ public class Ventana extends JFrame {
     }
 
     private void btnAnalizar(ActionEvent ae) {
+        try {
+            limpiarContenidoGlobal();
+            txtConsola.setText("");
+            StringReader strReader = new StringReader(limpiarTexto(txtEditor.getText())+"$");
+            Scanner scanner = new Scanner(strReader);
+            Parser parser = new Parser(scanner);
+            parser.parse();
+            if(Main.errores.size() == 0){
+                for (String contenido: Main.textos) {
+                    txtConsola.append(contenido);
+                }
+            }else{
+                for (Token error: Main.errores) {
+                    txtConsola.append(error.getLexema() + " | " + error.getTipo() + "\n");
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("Error al analizar la entrada");
+            e.printStackTrace();
+        }
+    }
 
+    private void limpiarContenidoGlobal(){
+        Main.textos = new ArrayList<>();
+        Main.tokens = new ArrayList<>();
+        Main.errores = new ArrayList<>();
+    }
+
+    private String limpiarTexto(String texto){
+        if(texto.contains("“"))
+            texto = texto.replace('“', '\"');
+        if(texto.contains("”"))
+            texto = texto.replace('”', '\"');
+        return texto;
     }
 }
